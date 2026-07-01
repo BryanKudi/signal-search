@@ -22,3 +22,12 @@ def tokenize(text: str) -> list[str]:
 
     return tokens
 
+
+def count_tokens(tokens: list[str]) -> dict[str, int]:
+    """Count how many times each token appears."""
+    counts: dict[str, int] = {}
+
+    for token in tokens:
+        counts[token] = counts.get(token, 0) + 1
+
+    return counts
