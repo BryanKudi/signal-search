@@ -51,3 +51,29 @@ def test_search_engine_rebuilds_index_when_document_is_replaced() -> None:
 
     assert engine.search("python") == []
     assert engine.search("rust") == [("doc-1", 1)]
+
+
+def test_search_engine_removes_document_and_rebuilds_index() -> None:
+    engine = SearchEngine()
+    engine.add_documents(
+        {
+            "doc-1": "python search",
+            "doc-2": "rust systems",
+        }
+    )
+
+    removed = engine.remove_document("doc-1")
+
+    assert removed is True
+    assert engine.search("python") == []
+    assert engine.search("rust") == [("doc-2", 1)]
+
+
+def test_search_engine_reports_when_document_is_missing() -> None:
+    engine = SearchEngine()
+    engine.add_document("doc-1", "python search")
+
+    removed = engine.remove_document("missing")
+
+    assert removed is False
+    assert engine.search("python") == [("doc-1", 1)]
