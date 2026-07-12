@@ -29,6 +29,15 @@ class SearchEngine:
         self.documents.update(documents)
         self.index = build_inverted_index(self.documents)
 
+    def remove_document(self, document_id: str) -> bool:
+        """Remove one document if it exists and rebuild the index."""
+        if document_id not in self.documents:
+            return False
+
+        del self.documents[document_id]
+        self.index = build_inverted_index(self.documents)
+        return True
+
     def search(self, query: str) -> list[SearchResult]:
         """Return documents ranked by raw token frequency."""
         return frequency_search(self.index, query)
