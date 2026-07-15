@@ -7,6 +7,7 @@ from signal_search.api_models import (
     SearchRequest,
     SearchResponse,
     SearchResultOutput,
+    format_search_response,
 )
 
 
@@ -46,3 +47,27 @@ def test_api_models_are_immutable_contract_objects() -> None:
 
     with pytest.raises(FrozenInstanceError):
         request.query = "rust"
+
+
+def test_format_search_response_converts_ranked_tuples_to_output_models() -> None:
+    response = format_search_response(
+        query="python",
+        results=[
+            ("doc-1", 2),
+            ("doc-2", 1.5),
+        ],
+    )
+
+    assert response == SearchResponse(
+        query="python",
+        results=[
+            SearchResultOutput(document_id="doc-1", score=2.0),
+            SearchResultOutput(document_id="doc-2", score=1.5),
+        ],
+    )
+
+
+def test_format_search_response_preserves_empty_results() -> None:
+    response = format_search_response(query="missing", results=[])
+
+    assert response == SearchResponse(query="missing", results=[])
