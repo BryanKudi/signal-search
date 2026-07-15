@@ -2,6 +2,8 @@
 
 from dataclasses import dataclass
 
+RawSearchResult = tuple[str, int | float]
+
 
 @dataclass(frozen=True)
 class DocumentInput:
@@ -33,3 +35,17 @@ class SearchResponse:
 
     query: str
     results: list[SearchResultOutput]
+
+
+def format_search_response(
+    query: str,
+    results: list[RawSearchResult],
+) -> SearchResponse:
+    """Convert internal ranked tuples into an API response object."""
+    return SearchResponse(
+        query=query,
+        results=[
+            SearchResultOutput(document_id=document_id, score=float(score))
+            for document_id, score in results
+        ],
+    )
