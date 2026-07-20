@@ -38,6 +38,11 @@ class SearchEngine:
         self.index = build_inverted_index(self.documents)
         return True
 
+    def clear(self) -> None:
+        """Remove all documents and reset the index."""
+        self.documents.clear()
+        self.index.clear()
+
     def search(self, query: str) -> list[SearchResult]:
         """Return documents ranked by raw token frequency."""
         return frequency_search(self.index, query)
