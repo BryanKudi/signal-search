@@ -77,3 +77,20 @@ def test_search_engine_reports_when_document_is_missing() -> None:
 
     assert removed is False
     assert engine.search("python") == [("doc-1", 1)]
+
+
+def test_search_engine_clears_documents_and_index() -> None:
+    engine = SearchEngine()
+    engine.add_documents(
+        {
+            "doc-1": "python search",
+            "doc-2": "rust systems",
+        }
+    )
+
+    engine.clear()
+
+    assert engine.documents == {}
+    assert engine.index == {}
+    assert engine.search("python") == []
+    assert engine.tfidf_search("rust") == []
