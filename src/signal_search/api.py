@@ -16,6 +16,16 @@ def create_app(engine: SearchEngine | None = None) -> FastAPI:
     app = FastAPI(title="Signal Search", version="0.1.0")
     app.state.engine = engine or SearchEngine()
 
+    @app.get("/")
+    def root() -> dict[str, str]:
+        """Describe the API and its discovery endpoints."""
+        return {
+            "name": "Signal Search",
+            "version": "0.1.0",
+            "docs": "/docs",
+            "health": "/health",
+        }
+
     @app.get("/health")
     def health() -> dict[str, str]:
         """Confirm the API process is running."""
