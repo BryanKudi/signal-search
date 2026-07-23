@@ -3,6 +3,20 @@ from fastapi.testclient import TestClient
 from signal_search.api import create_app
 
 
+def test_root_endpoint_describes_api() -> None:
+    client = TestClient(create_app())
+
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "name": "Signal Search",
+        "version": "0.1.0",
+        "docs": "/docs",
+        "health": "/health",
+    }
+
+
 def test_health_endpoint_reports_ok() -> None:
     client = TestClient(create_app())
 
