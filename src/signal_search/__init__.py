@@ -7,6 +7,7 @@ from signal_search.api_models import (
     SearchResultOutput,
     format_search_response,
 )
+from signal_search.api import create_app
 from signal_search.engine import SearchEngine
 from signal_search.index import build_inverted_index
 from signal_search.search import search, tfidf_search
@@ -23,6 +24,7 @@ __all__ = [
     "__version__",
     "build_inverted_index",
     "count_tokens",
+    "create_app",
     "format_search_response",
     "search",
     "tfidf_search",

@@ -25,3 +25,22 @@ python -m pip install -e ".[dev]"
 pytest
 ```
 
+## Run the API locally
+
+```bash
+uvicorn signal_search.api:app --reload
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+The API currently supports:
+
+- `GET /health`
+- `POST /documents`
+- `DELETE /documents/{document_id}`
+- `POST /search`
+- `POST /clear`
