@@ -58,6 +58,29 @@ def test_api_adds_document_and_searches_with_tfidf() -> None:
     }
 
 
+def test_api_counts_documents() -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/documents",
+        json={
+            "document_id": "doc-1",
+            "text": "Python search engine",
+        },
+    )
+    client.post(
+        "/documents",
+        json={
+            "document_id": "doc-2",
+            "text": "Rust systems",
+        },
+    )
+
+    response = client.get("/documents/count")
+
+    assert response.status_code == 200
+    assert response.json() == {"document_count": 2}
+
+
 def test_api_can_use_frequency_ranking() -> None:
     client = TestClient(create_app())
     client.post(
