@@ -81,6 +81,41 @@ def test_api_counts_documents() -> None:
     assert response.json() == {"document_count": 2}
 
 
+def test_api_lists_document_metadata() -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/documents",
+        json={
+            "document_id": "doc-2",
+            "text": "Rust systems",
+        },
+    )
+    client.post(
+        "/documents",
+        json={
+            "document_id": "doc-1",
+            "text": "Python search engine",
+        },
+    )
+
+    response = client.get("/documents")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "documents": [
+            {
+                "document_id": "doc-1",
+                "character_count": 20,
+            },
+            {
+                "document_id": "doc-2",
+                "character_count": 12,
+            },
+        ],
+        "document_count": 2,
+    }
+
+
 def test_api_can_use_frequency_ranking() -> None:
     client = TestClient(create_app())
     client.post(

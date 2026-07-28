@@ -46,6 +46,22 @@ def create_app(engine: SearchEngine | None = None) -> FastAPI:
         """Return how many documents are currently searchable."""
         return {"document_count": len(app.state.engine.documents)}
 
+    @app.get("/documents")
+    def list_documents() -> dict[str, int | list[dict[str, str | int]]]:
+        """Return searchable document metadata without full document text."""
+        documents = [
+            {
+                "document_id": document_id,
+                "character_count": len(text),
+            }
+            for document_id, text in sorted(app.state.engine.documents.items())
+        ]
+
+        return {
+            "documents": documents,
+            "document_count": len(documents),
+        }
+
     @app.delete("/documents/{document_id}")
     def remove_document(document_id: str) -> dict[str, str | int]:
         """Remove one searchable document."""
