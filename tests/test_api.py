@@ -116,6 +116,35 @@ def test_api_lists_document_metadata() -> None:
     }
 
 
+def test_api_gets_document_by_id() -> None:
+    client = TestClient(create_app())
+    client.post(
+        "/documents",
+        json={
+            "document_id": "doc-1",
+            "text": "Python search engine",
+        },
+    )
+
+    response = client.get("/documents/doc-1")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "document_id": "doc-1",
+        "text": "Python search engine",
+        "character_count": 20,
+    }
+
+
+def test_api_returns_404_when_getting_missing_document() -> None:
+    client = TestClient(create_app())
+
+    response = client.get("/documents/missing")
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "Document 'missing' was not found."}
+
+
 def test_api_can_use_frequency_ranking() -> None:
     client = TestClient(create_app())
     client.post(

@@ -62,6 +62,23 @@ def create_app(engine: SearchEngine | None = None) -> FastAPI:
             "document_count": len(documents),
         }
 
+    @app.get("/documents/{document_id}")
+    def get_document(document_id: str) -> dict[str, str | int]:
+        """Return one searchable document by ID."""
+        text = app.state.engine.documents.get(document_id)
+
+        if text is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document '{document_id}' was not found.",
+            )
+
+        return {
+            "document_id": document_id,
+            "text": text,
+            "character_count": len(text),
+        }
+
     @app.delete("/documents/{document_id}")
     def remove_document(document_id: str) -> dict[str, str | int]:
         """Remove one searchable document."""
