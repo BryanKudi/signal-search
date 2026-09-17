@@ -1,0 +1,13 @@
+.git
+.github
+.pytest_cache
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.db
+build
+data
+dist
+scripts
+tests
