@@ -176,6 +176,19 @@ The official Python base image supports both AMD64/Intel and ARM64 hardware.
 CI builds and smoke-tests both architectures, while the Python suite runs on
 Python 3.11, 3.12, and 3.13.
 
+## Recruiter Demo
+
+With the API running, launch the repeatable demo:
+
+```bash
+python scripts/demo.py
+```
+
+The script indexes four sample documents, compares frequency, TF-IDF, and BM25
+ranking, proves that repeated searches use the cache, and prints live service
+metrics. It only uses the Python standard library and does not require internet
+access.
+
 ## Testing
 
 ```bash
