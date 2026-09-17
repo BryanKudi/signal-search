@@ -94,3 +94,67 @@ def test_search_engine_clears_documents_and_index() -> None:
     assert engine.index == {}
     assert engine.search("python") == []
     assert engine.tfidf_search("rust") == []
+
+
+def test_search_engine_runs_bm25_ranking() -> None:
+    engine = SearchEngine(
+        {
+            "short": "python guide",
+            "long": "python guide with several additional unrelated words",
+        }
+    )
+
+    results = engine.bm25_search("python")
+
+    assert [document_id for document_id, _ in results] == ["short", "long"]
+
+
+def test_search_engine_caches_normalized_queries() -> None:
+    engine = SearchEngine({"doc-1": "Python search"})
+
+    engine.tfidf_search("python")
+    engine.tfidf_search("PYTHON!")
+    metrics = engine.metrics()
+
+    assert metrics.search_count == 2
+    assert metrics.cache_hits == 1
+    assert metrics.cache_misses == 1
+    assert metrics.cache_entries == 1
+    assert metrics.cache_hit_rate == 0.5
+
+
+def test_search_engine_invalidates_cache_after_mutation() -> None:
+    engine = SearchEngine({"doc-1": "python"})
+    engine.search("python")
+
+    engine.add_document("doc-2", "python")
+
+    assert engine.metrics().cache_entries == 0
+    assert engine.search("python") == [("doc-1", 1), ("doc-2", 1)]
+    assert engine.metrics().cache_misses == 2
+
+
+def test_search_engine_evicts_least_recently_used_query() -> None:
+    engine = SearchEngine(
+        {"doc-1": "python search engine"},
+        cache_size=1,
+    )
+
+    engine.search("python")
+    engine.search("search")
+    engine.search("python")
+
+    assert engine.metrics().cache_entries == 1
+    assert engine.metrics().cache_hits == 0
+    assert engine.metrics().cache_misses == 3
+
+
+def test_search_engine_rejects_unknown_ranking_algorithm() -> None:
+    engine = SearchEngine()
+
+    try:
+        engine.rank("python", "pagerank")  # type: ignore[arg-type]
+    except ValueError as error:
+        assert str(error) == "Unsupported ranking algorithm: pagerank"
+    else:
+        raise AssertionError("Expected an unsupported ranking error")

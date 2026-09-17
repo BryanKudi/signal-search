@@ -1,0 +1,17 @@
+name: signal-search
+
+services:
+  api:
+    build:
+      context: .
+    image: signal-search:local
+    ports:
+      - "8000:8000"
+    environment:
+      SIGNAL_SEARCH_DB_PATH: /data/signal-search.db
+      SIGNAL_SEARCH_CACHE_SIZE: 128
+    volumes:
+      - signal-search-data:/data
+
+volumes:
+  signal-search-data:
