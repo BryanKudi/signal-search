@@ -1,5 +1,7 @@
 """Run a short, repeatable Signal Search demo against the live API."""
 
+from __future__ import annotations
+
 import json
 import os
 import sys
@@ -8,20 +10,21 @@ from urllib.error import URLError
 from urllib.request import Request, urlopen
 
 BASE_URL = os.getenv("SIGNAL_SEARCH_URL", "http://127.0.0.1:8000").rstrip("/")
+DEMO_QUERY = "recruiter demo"
 
 DEMO_DOCUMENTS = {
     "python-search-guide": (
-        "Python search ranking guide using an inverted index and BM25."
+        "Recruiter demo for Python search ranking with an inverted index and BM25."
     ),
     "ranking-notes": (
-        "Python Python Python search search ranking ranking with extra notes "
+        "Recruiter recruiter recruiter demo demo ranking notes with extra details "
         "about APIs databases containers testing deployment and monitoring."
     ),
     "fastapi-service": (
-        "FastAPI service for adding documents and returning ranked search results."
+        "Recruiter demo of a FastAPI service returning ranked search results."
     ),
     "sqlite-storage": (
-        "SQLite persistence restores indexed documents after a container restart."
+        "Recruiter demo showing SQLite data after a container restart."
     ),
 }
 
@@ -54,7 +57,7 @@ def show_rankings(algorithm: str) -> None:
         "POST",
         "/search",
         {
-            "query": "python search ranking",
+            "query": DEMO_QUERY,
             "ranking": algorithm,
             "limit": 3,
         },
@@ -88,7 +91,8 @@ def main() -> None:
             print(f"Indexed {document_id}")
 
         count = request_json("GET", "/documents/count")
-        print(f"Searchable documents: {count['document_count']}")
+        print(f"Demo documents indexed: {len(DEMO_DOCUMENTS)}")
+        print(f"Total searchable documents: {count['document_count']}")
 
         heading("2. COMPARE RANKING METHODS")
         for algorithm in ("frequency", "tfidf", "bm25"):
@@ -121,7 +125,9 @@ def main() -> None:
             "cache_hit_rate",
             "average_search_latency_ms",
         ):
-            print(f"{name:<24} {after[name]}")
+            value = after[name]
+            displayed_value = f"{value:.4f}" if isinstance(value, float) else value
+            print(f"{name:<26} {displayed_value}")
 
         heading("DEMO COMPLETE")
         print("Signal Search indexed, ranked, cached, and measured real queries.")
