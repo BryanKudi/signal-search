@@ -1,4 +1,8 @@
-from signal_search.index import build_inverted_index
+from signal_search.index import (
+    add_document_to_index,
+    build_inverted_index,
+    remove_document_from_index,
+)
 
 
 def test_build_inverted_index_maps_tokens_to_documents() -> None:
@@ -27,3 +31,14 @@ def test_build_inverted_index_normalizes_document_text() -> None:
         "python": {"doc-1": 2},
     }
 
+
+def test_index_can_be_updated_incrementally() -> None:
+    index = build_inverted_index({"doc-1": "python search"})
+
+    add_document_to_index(index, "doc-2", "python systems")
+    remove_document_from_index(index, "doc-1")
+
+    assert index == {
+        "python": {"doc-2": 1},
+        "systems": {"doc-2": 1},
+    }
