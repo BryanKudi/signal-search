@@ -1,6 +1,6 @@
 import pytest
 
-from signal_search.search import search, tfidf_search
+from signal_search.search import bm25_search, search, tfidf_search
 
 
 def test_search_ranks_documents_by_total_frequency() -> None:
@@ -58,3 +58,59 @@ def test_tfidf_search_normalizes_and_deduplicates_query_tokens() -> None:
 def test_tfidf_search_requires_a_positive_document_count() -> None:
     with pytest.raises(ValueError, match="must be positive"):
         tfidf_search({}, "python", total_documents=0)
+
+
+def test_bm25_normalizes_scores_by_document_length() -> None:
+    index = {"python": {"short": 1, "long": 1}}
+
+    results = bm25_search(
+        index,
+        "python",
+        document_lengths={"short": 2, "long": 20},
+        total_documents=2,
+        average_document_length=11,
+    )
+
+    assert [document_id for document_id, _ in results] == ["short", "long"]
+    assert results[0][1] > results[1][1]
+
+
+def test_bm25_rewards_rare_terms() -> None:
+    index = {
+        "common": {"a": 1, "b": 1, "c": 1},
+        "rare": {"b": 1},
+    }
+
+    results = bm25_search(
+        index,
+        "common rare",
+        document_lengths={"a": 1, "b": 2, "c": 1},
+        total_documents=3,
+        average_document_length=4 / 3,
+    )
+
+    assert results[0][0] == "b"
+
+
+@pytest.mark.parametrize(
+    ("arguments", "message"),
+    [
+        ({"total_documents": 0}, "total_documents must be positive"),
+        ({"average_document_length": -1}, "cannot be negative"),
+        ({"k1": 0}, "k1 must be positive"),
+        ({"b": 2}, "b must be between"),
+    ],
+)
+def test_bm25_validates_scoring_parameters(
+    arguments: dict[str, int],
+    message: str,
+) -> None:
+    options = {
+        "document_lengths": {},
+        "total_documents": 1,
+        "average_document_length": 0,
+        **arguments,
+    }
+
+    with pytest.raises(ValueError, match=message):
+        bm25_search({}, "python", **options)

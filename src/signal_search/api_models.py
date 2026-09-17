@@ -19,6 +19,9 @@ class SearchRequest:
 
     query: str
     use_tfidf: bool = True
+    ranking: str | None = None
+    limit: int | None = None
+    offset: int = 0
 
 
 @dataclass(frozen=True)
@@ -35,6 +38,33 @@ class SearchResponse:
 
     query: str
     results: list[SearchResultOutput]
+
+
+@dataclass(frozen=True)
+class CrawlRequest:
+    """Bounded web crawl requested through the API."""
+
+    start_url: str
+    max_pages: int = 10
+    same_domain: bool = True
+
+
+@dataclass(frozen=True)
+class CrawledPageOutput:
+    """Summary of one page added by a crawl."""
+
+    url: str
+    title: str
+    character_count: int
+
+
+@dataclass(frozen=True)
+class CrawlResponse:
+    """Summary of a completed crawl and ingestion operation."""
+
+    pages: list[CrawledPageOutput]
+    failed_urls: list[str]
+    indexed_count: int
 
 
 def format_search_response(
